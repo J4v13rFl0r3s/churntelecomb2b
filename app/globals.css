@@ -161,3 +161,58 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom animations */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer utilities {
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+    background: linear-gradient(
+      to right,
+      rgb(148 163 184 / 0.1) 0%,
+      rgb(148 163 184 / 0.2) 50%,
+      rgb(148 163 184 / 0.1) 100%
+    );
+    background-size: 1000px 100%;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .animate-slide-up {
+    animation: slideInUp 0.4s ease-out;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}

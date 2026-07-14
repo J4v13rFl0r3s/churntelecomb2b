@@ -67,10 +67,18 @@ class ApiClient {
   }
 
   // Auth endpoints
-  async login(email: string, password: string): Promise<types.AuthResponse> {
+  async login(username: string, password: string): Promise<types.AuthResponse> {
+    const formData = new URLSearchParams();
+    formData.append('username', username);
+    formData.append('password', password);
+    
     return this.retryRequest(() =>
-      this.client
-        .post<types.AuthResponse>('/auth/login', { email, password })
+      axios
+        .post<types.AuthResponse>('/api/auth/login', formData, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        })
         .then((res) => res.data)
     );
   }

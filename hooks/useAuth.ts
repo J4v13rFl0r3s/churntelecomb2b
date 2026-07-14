@@ -12,17 +12,17 @@ export function useAuth() {
   }, [loadFromStorage]);
 
   const login = useCallback(
-    async (email: string, password: string) => {
+    async (username: string, password: string) => {
       setLoading(true);
       setError(null);
       try {
-        const response = await apiClient.login(email, password);
+        const response = await apiClient.login(username, password);
         saveAuthToStorage(response.token, response.user);
         setLoading(false);
         return true;
       } catch (err: any) {
         const errorMessage =
-          err.response?.data?.message || err.message || 'Login failed';
+          err.response?.data?.detail || err.message || 'Login failed';
         setError(errorMessage);
         setLoading(false);
         return false;

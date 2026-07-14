@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 export default function LoginPage() {
   const router = useRouter();
   const { login, isLoading, error } = useAuth();
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [localError, setLocalError] = useState('');
 
@@ -15,12 +15,12 @@ export default function LoginPage() {
     e.preventDefault();
     setLocalError('');
 
-    if (!email || !password) {
-      setLocalError('Please fill in all fields');
+    if (!username || !password) {
+      setLocalError('Por favor completa todos los campos');
       return;
     }
 
-    const success = await login(email, password);
+    const success = await login(username, password);
     if (success) {
       router.push('/dashboard');
     } else {
@@ -44,17 +44,17 @@ export default function LoginPage() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email Field */}
+            {/* Username Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Email Address
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Usuario
               </label>
               <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                type="text"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="admin"
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 disabled={isLoading}
               />
@@ -63,7 +63,7 @@ export default function LoginPage() {
             {/* Password Field */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Password
+                Contraseña
               </label>
               <input
                 type="password"
@@ -104,8 +104,9 @@ export default function LoginPage() {
           {/* Demo Info */}
           <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
             <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
-              Demo Account:<br />
-              <code className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">demo@example.com</code>
+              Cuenta Demo:<br />
+              Usuario: <code className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">admin</code><br />
+              Contraseña: <code className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">admin</code>
             </p>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 export interface UseApiState<T> {
   data: T | null;
@@ -35,12 +35,11 @@ export function useApi<T>(
   }, [apiCall]);
 
   // Trigger immediate fetch if enabled
-  const [initialized, setInitialized] = useState(false);
-  if (immediate && !initialized) {
-    setInitialized(true);
-    // Use a timeout to avoid state update warnings in React 18
-    setTimeout(() => refetch(), 0);
-  }
+  useEffect(() => {
+    if (immediate) {
+      refetch();
+    }
+  }, [immediate, refetch]);
 
   return { ...state, refetch };
 }

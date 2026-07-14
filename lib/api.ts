@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import * as types from './types';
 
-const API_BASE_URL = 'https://churnbackend-production.up.railway.app';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://churnbackend-production.up.railway.app';
 
 class ApiClient {
   private client: AxiosInstance;

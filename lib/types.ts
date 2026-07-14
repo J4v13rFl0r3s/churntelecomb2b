@@ -6,8 +6,10 @@ export interface User {
 }
 
 export interface AuthResponse {
-  token: string;
-  user: User;
+  token?: string;
+  access_token?: string;
+  user?: User;
+  token_type?: string;
 }
 
 export interface LoginRequest {

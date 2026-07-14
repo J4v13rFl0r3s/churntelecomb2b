@@ -106,7 +106,7 @@ export default function LoginPage() {
             <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
               Cuenta Demo:<br />
               Usuario: <code className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">admin</code><br />
-              Contraseña: <code className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">admin</code>
+              Contraseña: <code className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">Sistemas20#</code>
             </p>
           </div>
         </div>

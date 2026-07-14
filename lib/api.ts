@@ -79,7 +79,18 @@ class ApiClient {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
         })
-        .then((res) => res.data)
+        .then((res) => {
+          // Backend returns access_token, normalize to token
+          const data = res.data;
+          if (data.access_token && !data.token) {
+            data.token = data.access_token;
+          }
+          // If no user data from backend, create a basic user object
+          if (!data.user) {
+            data.user = { id: username, email: username, name: username };
+          }
+          return data;
+        })
     );
   }
 

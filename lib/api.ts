@@ -122,9 +122,42 @@ class ApiClient {
   // Metrics endpoints
   async getModelMetrics(): Promise<types.ModelMetrics> {
     return this.retryRequest(() =>
-      this.client
-        .get<types.ModelMetrics>('/metrics/model')
-        .then((res) => res.data)
+      this.client.get<any>('/metrics/model').then((res) => {
+        const raw = res.data;
+
+        // If response already matches the frontend shape, return as-is
+        if (raw.confusionMatrix && raw.model && typeof raw.model === 'object') {
+          return raw as types.ModelMetrics;
+        }
+
+        // Normalize the Railway backend shape to the frontend ModelMetrics shape
+        const cm = raw.confusion_matrix || {};
+        const normalized: types.ModelMetrics = {
+          accuracy: raw.accuracy ?? 0,
+          precision: raw.precision ?? 0,
+          recall: raw.recall ?? 0,
+          f1Score: raw.f1Score ?? raw.f1_score ?? 0,
+          confusionMatrix: {
+            TP: cm.TP ?? cm.true_positive ?? 0,
+            TN: cm.TN ?? cm.true_negative ?? 0,
+            FP: cm.FP ?? cm.false_positive ?? 0,
+            FN: cm.FN ?? cm.false_negative ?? 0,
+          },
+          model: {
+            nombre:
+              typeof raw.model === 'string'
+                ? raw.model
+                : raw.model?.nombre ?? 'N/A',
+            versión: raw.version ?? raw.model?.versión ?? 'N/A',
+            algoritmo: raw.algorithm ?? raw.model?.algoritmo ?? 'N/A',
+            fechaEntrenamiento:
+              raw.created_at ?? raw.model?.fechaEntrenamiento ?? new Date().toISOString(),
+            cantidadRegistros:
+              raw.predictions?.total ?? raw.model?.cantidadRegistros ?? 0,
+          },
+        };
+        return normalized;
+      })
     );
   }
 

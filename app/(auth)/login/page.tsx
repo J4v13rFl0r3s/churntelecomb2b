@@ -101,12 +101,10 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Demo Info */}
+          {/* Copyright */}
           <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
             <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
-              Cuenta Demo:<br />
-              Usuario: <code className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">admin</code><br />
-              Contraseña: <code className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">Sistemas20#</code>
+              Copyright del Grupo 1
             </p>
           </div>
         </div>

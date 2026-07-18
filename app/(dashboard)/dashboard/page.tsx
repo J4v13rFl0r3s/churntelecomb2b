@@ -1,8 +1,10 @@
 'use client';
 
 import { useDashboard } from '@/hooks/useDashboard';
+import { useTopRisk } from '@/hooks/useTopRisk';
 import { KPICard } from '@/components/Dashboard/KPICard';
-import { SkeletonCard, SkeletonTable } from '@/components/Common/LoadingSkeleton';
+import { TopRisk } from '@/components/Dashboard/TopRisk';
+import { SkeletonCard } from '@/components/Common/LoadingSkeleton';
 import {
   BarChart3,
   Building2,
@@ -11,27 +13,129 @@ import {
   Target,
   Zap,
   Award,
-  CheckCircle,
 } from 'lucide-react';
 import {
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
+  Chart as ChartJS,
+  ArcElement,
   Tooltip,
-  ResponsiveContainer,
   Legend,
-} from 'recharts';
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  Title,
+  Filler,
+} from 'chart.js';
+import { Doughnut, Bar, Line } from 'react-chartjs-2';
 import { CHART_COLORS } from '@/lib/constants';
+
+ChartJS.register(
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  Title,
+  Filler
+);
 
 export default function DashboardPage() {
   const { data, loading, error, refetch } = useDashboard();
+  const {
+    data: topRiskData,
+    loading: topRiskLoading,
+    error: topRiskError,
+    refetch: refetchTopRisk,
+  } = useTopRisk();
+
+  const riskDistributionData = {
+    labels: data?.riskDistribution.labels ?? [],
+    datasets: [
+      {
+        data: data?.riskDistribution.values ?? [],
+        backgroundColor: CHART_COLORS,
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const customersByRegionData = {
+    labels:
+      data?.customersByRegion.map(
+        (item) => item['región'] ?? (item as any).region ?? 'N/A'
+      ) ?? [],
+    datasets: [
+      {
+        label: 'Clientes',
+        data:
+          data?.customersByRegion.map((item) => item.cantidad ?? 0) ?? [],
+        backgroundColor: '#0066cc',
+        borderRadius: 8,
+      },
+    ],
+  };
+
+  const customersBySectorData = {
+    labels: data?.customersBySector.map((item) => item.sector ?? 'N/A') ?? [],
+    datasets: [
+      {
+        label: 'Clientes',
+        data: data?.customersBySector.map((item) => item.cantidad ?? 0) ?? [],
+        backgroundColor: '#1e7145',
+        borderRadius: 8,
+      },
+    ],
+  };
+
+  const averageRiskScoreData = {
+    labels: data?.averageRiskScore.map((item) => item.fecha) ?? [],
+    datasets: [
+      {
+        label: 'Risk Score',
+        data: data?.averageRiskScore.map((item) => item.riskScore) ?? [],
+        fill: true,
+        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+        borderColor: '#f59e0b',
+        tension: 0.4,
+        pointRadius: 3,
+      },
+    ],
+  };
+
+  const defaultChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        enabled: true,
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+        ticks: {
+          color: '#6b7280',
+        },
+      },
+      y: {
+        grid: {
+          color: '#e5e7eb',
+        },
+        ticks: {
+          color: '#6b7280',
+        },
+      },
+    },
+  };
 
   if (error) {
     return (
@@ -124,13 +228,6 @@ export default function DashboardPage() {
               progress={data.kpis.f1Score * 100}
               color="blue"
             />
-            <KPICard
-              title="Model Status"
-              value="Active"
-              icon={CheckCircle}
-              description="All systems operational"
-              color="green"
-            />
           </>
         ) : (
           <p className="text-gray-600 dark:text-gray-400">No data available</p>
@@ -145,28 +242,23 @@ export default function DashboardPage() {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Distribución de Riesgo
             </h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={data.riskDistribution.labels.map((label, i) => ({
-                    name: label,
-                    value: data.riskDistribution.values[i],
-                  }))}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={(entry) => `${entry.name}: ${entry.value}`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {CHART_COLORS.map((color, index) => (
-                    <Cell key={`cell-${index}`} fill={color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+            <div className="h-72">
+              <Doughnut
+                data={riskDistributionData}
+                options={{
+                  ...defaultChartOptions,
+                  plugins: {
+                    ...defaultChartOptions.plugins,
+                    legend: {
+                      position: 'bottom' as const,
+                      labels: {
+                        color: '#6b7280',
+                      },
+                    },
+                  },
+                }}
+              />
+            </div>
           </div>
 
           {/* Customers by Region */}
@@ -174,15 +266,9 @@ export default function DashboardPage() {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Clientes por Región
             </h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={data.customersByRegion}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="región" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="cantidad" fill="#0066cc" />
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="h-72">
+              <Bar data={customersByRegionData} options={defaultChartOptions} />
+            </div>
           </div>
 
           {/* Customers by Sector */}
@@ -190,15 +276,9 @@ export default function DashboardPage() {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Clientes por Sector
             </h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={data.customersBySector}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="sector" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="cantidad" fill="#1e7145" />
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="h-72">
+              <Bar data={customersBySectorData} options={defaultChartOptions} />
+            </div>
           </div>
 
           {/* Average Risk Score */}
@@ -206,24 +286,22 @@ export default function DashboardPage() {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Risk Score Promedio
             </h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={data.averageRiskScore}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="fecha" />
-                <YAxis />
-                <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="riskScore"
-                  stroke="#f59e0b"
-                  dot={false}
-                  strokeWidth={2}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            <div className="h-72">
+              <Line data={averageRiskScoreData} options={defaultChartOptions} />
+            </div>
           </div>
         </div>
       )}
+
+      {/* Top Risk Companies */}
+      <div>
+        <TopRisk
+          data={topRiskData?.data ?? null}
+          loading={topRiskLoading}
+          error={topRiskError}
+          refetch={refetchTopRisk}
+        />
+      </div>
     </div>
   );
 }

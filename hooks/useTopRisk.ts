@@ -1,11 +1,12 @@
 import { useCallback } from 'react';
 import { apiClient } from '@/lib/api';
-import type { DashboardData } from '@/lib/types';
+import type { TopRiskResponse } from '@/lib/types';
 import { useApi } from './useApi';
 
-export function useDashboard() {
+export function useTopRisk() {
   const apiCall = useCallback(async () => {
-    return await apiClient.getDashboard();
+    return await apiClient.getTopRisk();
   }, []);
-  return useApi<DashboardData>(apiCall);
+
+  return useApi<TopRiskResponse>(apiCall);
 }

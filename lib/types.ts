@@ -50,12 +50,28 @@ export interface PredictionsResponse {
   total: number;
 }
 
+export interface TopRiskCompany {
+  id: string;
+  nombre?: string;
+  empresa?: string;
+  sector: string;
+  región: string;
+  predicción?: 'Activo' | 'Churn';
+  prediction?: string;
+  riskScore: number;
+}
+
+export interface TopRiskResponse {
+  data: TopRiskCompany[];
+}
+
 // Metrics Types
 export interface ModelMetrics {
   accuracy: number;
   precision: number;
   recall: number;
   f1Score: number;
+  rocAuc: number;
   confusionMatrix: ConfusionMatrix;
   model: ModelInfo;
 }

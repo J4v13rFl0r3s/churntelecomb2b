@@ -12,47 +12,96 @@ export default function CompaniesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [region, setRegion] = useState('');
   const [sector, setSector] = useState('');
-  const [riskLevel, setRiskLevel] = useState('');
-  const [sortBy, setSortBy] = useState('nombre');
+  const [segmento, setSegmento] = useState('');
+  const [ejecutivo, setEjecutivo] = useState('');
+  const [prediction, setPrediction] = useState('');
+  const [sortBy, setSortBy] = useState<keyof Company>('nombre');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  const companyOptions = data?.data ?? [];
+
+  const regionOptions = useMemo(
+    () => [...new Set(companyOptions.map((company) => company.región).filter(Boolean))],
+    [companyOptions]
+  );
+
+  const sectorOptions = useMemo(
+    () => [...new Set(companyOptions.map((company) => company.sector).filter(Boolean))],
+    [companyOptions]
+  );
+
+  const segmentoOptions = useMemo(
+    () => [...new Set(companyOptions.map((company) => company.segmento).filter(Boolean))],
+    [companyOptions]
+  );
+
+  const ejecutivoOptions = useMemo(
+    () => [...new Set(companyOptions.map((company) => company.ejecutivoComercial).filter(Boolean))],
+    [companyOptions]
+  );
+
+  const predictionOptions = useMemo(
+    () => [...new Set(companyOptions.map((company) => company.predicción).filter(Boolean))],
+    [companyOptions]
+  );
+
   const filteredAndSortedCompanies = useMemo(() => {
-    if (!data?.data) return [];
+    if (!companyOptions.length) return [];
 
-    let filtered = [...data.data];
+    let filtered = [...companyOptions];
 
-    // Apply filters
     if (searchTerm) {
-      filtered = filtered.filter((c) =>
-        c.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+      const query = searchTerm.toLowerCase();
+      filtered = filtered.filter((company) =>
+        [
+          company.id,
+          company.nombre,
+          company.ejecutivoComercial,
+          company.sector,
+          company.segmento,
+        ]
+          .filter(Boolean)
+          .some((value) =>
+            String(value).toLowerCase().includes(query)
+          )
       );
     }
+
     if (region) {
-      filtered = filtered.filter((c) => c.región === region);
-    }
-    if (sector) {
-      filtered = filtered.filter((c) => c.sector === sector);
-    }
-    if (riskLevel) {
-      filtered = filtered.filter((c) => {
-        const score = c.riskScore;
-        if (riskLevel === 'Bajo') return score < 33;
-        if (riskLevel === 'Medio') return score >= 33 && score < 66;
-        if (riskLevel === 'Alto') return score >= 66;
-        return true;
-      });
+      filtered = filtered.filter((company) => company.región === region);
     }
 
-    // Sort
+    if (sector) {
+      filtered = filtered.filter((company) => company.sector === sector);
+    }
+
+    if (segmento) {
+      filtered = filtered.filter((company) => company.segmento === segmento);
+    }
+
+    if (ejecutivo) {
+      filtered = filtered.filter(
+        (company) => company.ejecutivoComercial === ejecutivo
+      );
+    }
+
+    if (prediction) {
+      filtered = filtered.filter(
+        (company) => company.predicción === prediction
+      );
+    }
+
     filtered.sort((a, b) => {
-      let aVal: any = a[sortBy as keyof Company];
-      let bVal: any = b[sortBy as keyof Company];
+      let aVal: any = a[sortBy];
+      let bVal: any = b[sortBy];
 
       if (typeof aVal === 'string') {
         aVal = aVal.toLowerCase();
-        bVal = (bVal as string).toLowerCase();
+      }
+      if (typeof bVal === 'string') {
+        bVal = bVal.toLowerCase();
       }
 
       if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
@@ -61,9 +110,9 @@ export default function CompaniesPage() {
     });
 
     return filtered;
-  }, [data?.data, searchTerm, region, sector, riskLevel, sortBy, sortOrder]);
+  }, [companyOptions, searchTerm, region, sector, segmento, ejecutivo, prediction, sortBy, sortOrder]);
 
-  const handleSort = (field: string) => {
+  const handleSort = (field: keyof Company) => {
     if (sortBy === field) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     } else {
@@ -73,11 +122,43 @@ export default function CompaniesPage() {
     setCurrentPage(1);
   };
 
-  const handleReset = () => {
+  const resetFilters = () => {
     setSearchTerm('');
     setRegion('');
     setSector('');
-    setRiskLevel('');
+    setSegmento('');
+    setEjecutivo('');
+    setPrediction('');
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+  };
+
+  const handleRegionChange = (value: string) => {
+    setRegion(value);
+    setCurrentPage(1);
+  };
+
+  const handleSectorChange = (value: string) => {
+    setSector(value);
+    setCurrentPage(1);
+  };
+
+  const handleSegmentoChange = (value: string) => {
+    setSegmento(value);
+    setCurrentPage(1);
+  };
+
+  const handleEjecutivoChange = (value: string) => {
+    setEjecutivo(value);
+    setCurrentPage(1);
+  };
+
+  const handlePredictionChange = (value: string) => {
+    setPrediction(value);
     setCurrentPage(1);
   };
 
@@ -95,7 +176,7 @@ export default function CompaniesPage() {
             onClick={() => refetch()}
             className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition"
           >
-            Retry
+            Reintentar
           </button>
         </div>
       </div>
@@ -110,7 +191,7 @@ export default function CompaniesPage() {
           Empresas
         </h1>
         <p className="text-gray-600 dark:text-gray-400 mt-2">
-          Manage and monitor all companies in the system.
+          Gestiona y supervisa todas las empresas en el sistema.
         </p>
       </div>
 
@@ -119,12 +200,21 @@ export default function CompaniesPage() {
         searchTerm={searchTerm}
         region={region}
         sector={sector}
-        riskLevel={riskLevel}
-        onSearchChange={setSearchTerm}
-        onRegionChange={setRegion}
-        onSectorChange={setSector}
-        onRiskLevelChange={setRiskLevel}
-        onReset={handleReset}
+        segmento={segmento}
+        ejecutivo={ejecutivo}
+        prediction={prediction}
+        regionOptions={regionOptions}
+        sectorOptions={sectorOptions}
+        segmentoOptions={segmentoOptions}
+        ejecutivoOptions={ejecutivoOptions}
+        predictionOptions={predictionOptions}
+        onSearchChange={handleSearchChange}
+        onRegionChange={handleRegionChange}
+        onSectorChange={handleSectorChange}
+        onSegmentoChange={handleSegmentoChange}
+        onEjecutivoChange={handleEjecutivoChange}
+        onPredictionChange={handlePredictionChange}
+        onReset={resetFilters}
       />
 
       {/* Table */}

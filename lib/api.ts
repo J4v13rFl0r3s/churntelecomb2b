@@ -21,23 +21,39 @@ class ApiClient {
       },
     });
 
+    // =====================================================
+    // Request Interceptor
+    // =====================================================
+
     this.client.interceptors.request.use(
       (config) => {
         if (typeof window !== 'undefined') {
           const token = localStorage.getItem('auth_token');
-          if (token && config.headers) {
+
+          // No enviar Authorization al endpoint Health
+          if (
+            token &&
+            config.headers &&
+            config.url !== '/health'
+          ) {
             config.headers.Authorization = `Bearer ${token}`;
           }
         }
+
         return config;
       },
       (error) => Promise.reject(error)
     );
 
+    // =====================================================
+    // Response Interceptor
+    // =====================================================
+
     this.client.interceptors.response.use(
       (response) => response,
       (error: AxiosError) => {
         const status = error.response?.status;
+
         if (status === 401) {
           if (typeof window !== 'undefined') {
             localStorage.removeItem('auth_token');
@@ -45,97 +61,197 @@ class ApiClient {
             window.location.href = '/login';
           }
         }
+
         return Promise.reject(error);
       }
     );
   }
 
-  private async retryRequest<T>(requestFn: () => Promise<T>, retryCount = 0): Promise<T> {
+  // =====================================================
+  // Retry Logic
+  // =====================================================
+
+  private async retryRequest<T>(
+    requestFn: () => Promise<T>,
+    retryCount = 0
+  ): Promise<T> {
     try {
       return await requestFn();
     } catch (error) {
-      if (retryCount < this.maxRetries && this.isRetryable(error)) {
+      if (
+        retryCount < this.maxRetries &&
+        this.isRetryable(error)
+      ) {
         await new Promise((resolve) =>
-          setTimeout(resolve, this.retryDelay * Math.pow(2, retryCount))
+          setTimeout(
+            resolve,
+            this.retryDelay * Math.pow(2, retryCount)
+          )
         );
+
         return this.retryRequest(requestFn, retryCount + 1);
       }
+
       throw error;
     }
   }
 
   private isRetryable(error: any): boolean {
     if (!axios.isAxiosError(error)) return false;
+
     const status = error.response?.status;
+
     return (
       status === 408 ||
       status === 429 ||
-      (status !== undefined && status >= 500 && status < 600)
+      (status !== undefined &&
+        status >= 500 &&
+        status < 600)
     );
   }
 
-  async login(username: string, password: string): Promise<types.AuthResponse> {
+  // =====================================================
+  // Authentication
+  // =====================================================
+
+  async login(
+    username: string,
+    password: string
+  ): Promise<types.AuthResponse> {
     const formData = new URLSearchParams();
+
     formData.append('username', username);
     formData.append('password', password);
 
     return this.retryRequest(() =>
       this.client
-        .post<types.AuthResponse>('/auth/login', formData, {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        })
+        .post<types.AuthResponse>(
+          '/auth/login',
+          formData,
+          {
+            headers: {
+              'Content-Type':
+                'application/x-www-form-urlencoded',
+            },
+          }
+        )
         .then((res) => {
           const data = res.data;
+
           if (data.access_token && !data.token) {
             data.token = data.access_token;
           }
+
           if (!data.user) {
-            data.user = { id: username, email: username, name: username };
+            data.user = {
+              id: username,
+              email: username,
+              name: username,
+            };
           }
+
           return data;
         })
     );
   }
 
+  // =====================================================
+  // Dashboard
+  // =====================================================
+
   async getDashboard(): Promise<types.DashboardData> {
     return this.retryRequest(() =>
-      this.client.get<types.DashboardData>('/dashboard').then((res) => res.data)
-    );
-  }
-
-  async getCompanies(params?: any): Promise<types.CompaniesResponse> {
-    return this.retryRequest(() =>
-      this.client.get<types.CompaniesResponse>('/companies', { params }).then((res) => res.data)
-    );
-  }
-
-  async getTopRisk(params?: any): Promise<types.TopRiskResponse> {
-    return this.retryRequest(() =>
-      this.client.get<types.TopRiskResponse>('/companies/top-risk', { params }).then((res) => res.data)
-    );
-  }
-
-  async getPredictions(params?: any): Promise<types.PredictionsResponse> {
-    return this.retryRequest(() =>
       this.client
-        .get<types.PredictionsResponse>('/predictions', { params })
+        .get<types.DashboardData>('/dashboard')
         .then((res) => res.data)
     );
   }
 
-  async getAuditLogs(params?: any): Promise<types.AuditLogsResponse> {
+  // =====================================================
+  // Companies
+  // =====================================================
+
+  async getCompanies(
+    params?: any
+  ): Promise<types.CompaniesResponse> {
     return this.retryRequest(() =>
-      this.client.get<types.AuditLogsResponse>('/logs', { params }).then((res) => res.data)
+      this.client
+        .get<types.CompaniesResponse>(
+          '/companies',
+          { params }
+        )
+        .then((res) => res.data)
     );
   }
 
+  // =====================================================
+  // Top Risk
+  // =====================================================
+
+  async getTopRisk(
+    params?: any
+  ): Promise<types.TopRiskResponse> {
+    return this.retryRequest(() =>
+      this.client
+        .get<types.TopRiskResponse>(
+          '/companies/top-risk',
+          { params }
+        )
+        .then((res) => res.data)
+    );
+  }
+
+  // =====================================================
+  // Predictions
+  // =====================================================
+
+  async getPredictions(
+    params?: any
+  ): Promise<types.PredictionsResponse> {
+    return this.retryRequest(() =>
+      this.client
+        .get<types.PredictionsResponse>(
+          '/predictions',
+          { params }
+        )
+        .then((res) => res.data)
+    );
+  }
+
+  // =====================================================
+  // Audit Logs
+  // =====================================================
+
+  async getAuditLogs(
+    params?: any
+  ): Promise<types.AuditLogsResponse> {
+    return this.retryRequest(() =>
+      this.client
+        .get<types.AuditLogsResponse>(
+          '/logs',
+          { params }
+        )
+        .then((res) => res.data)
+    );
+  }
+
+  // =====================================================
+  // Health Check
+  // =====================================================
+
   async checkHealth(): Promise<boolean> {
     try {
-      await this.client.get('/health', { timeout: 3000 });
-      return true;
-    } catch {
+      // Se usa Axios directamente para evitar el interceptor
+      const response = await axios.get(
+        `${API_BASE_URL}/health`,
+        {
+          timeout: 3000,
+        }
+      );
+
+      return response.status === 200;
+    } catch (error) {
+      console.error('Health Check Error:', error);
       return false;
     }
   }

@@ -1,14 +1,26 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useCompanies } from '@/hooks/useCompanies';
+import { useCompanies, useCompaniesByRegion } from '@/hooks/useCompanies';
 import { CompaniesFilters } from '@/components/Companies/CompaniesFilters';
 import { CompaniesTable } from '@/components/Companies/CompaniesTable';
 import { SkeletonTable } from '@/components/Common/LoadingSkeleton';
 import type { Company } from '@/lib/types';
+import { normalizeRegionValue } from '@/lib/utils';
 
 export default function CompaniesPage() {
-  const { data, loading, error, refetch } = useCompanies();
+  const {
+    data: companiesData,
+    loading: loadingAll,
+    error: errorAll,
+    refetch: refetchAll,
+  } = useCompanies();
+  const {
+    data: regionCompaniesData,
+    loading: loadingByRegion,
+    error: errorByRegion,
+    refetch: refetchByRegion,
+  } = useCompaniesByRegion(region);
   const [searchTerm, setSearchTerm] = useState('');
   const [region, setRegion] = useState('');
   const [sector, setSector] = useState('');
@@ -20,11 +32,30 @@ export default function CompaniesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const companyOptions = data?.data ?? [];
+  const loading = region ? loadingByRegion : loadingAll;
+  const error = region ? errorByRegion : errorAll;
+  const refetch = () => (region ? refetchByRegion() : refetchAll());
+
+  const companyOptions = useMemo(() => {
+    const companies = region
+      ? (regionCompaniesData?.data ?? [])
+      : (companiesData?.data ?? []);
+
+    return companies.filter((company) => {
+      const regionValue = (company as any).región ?? (company as any).region;
+      return normalizeRegionValue(regionValue) !== null;
+    });
+  }, [region, companiesData?.data, regionCompaniesData?.data]);
 
   const regionOptions = useMemo(
-    () => [...new Set(companyOptions.map((company) => company.región).filter(Boolean))],
-    [companyOptions]
+    () => [
+      ...new Set(
+        (companiesData?.data ?? [])
+          .map((company) => (company as any).región ?? (company as any).region)
+          .filter((value): value is string => Boolean(value) && normalizeRegionValue(value) !== null)
+      ),
+    ],
+    [companiesData?.data]
   );
 
   const sectorOptions = useMemo(
@@ -67,10 +98,6 @@ export default function CompaniesPage() {
             String(value).toLowerCase().includes(query)
           )
       );
-    }
-
-    if (region) {
-      filtered = filtered.filter((company) => company.región === region);
     }
 
     if (sector) {

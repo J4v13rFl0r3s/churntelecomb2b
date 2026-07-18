@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import * as types from './types';
+import { extractDashboardRegions } from './utils';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
 
@@ -167,6 +168,17 @@ class ApiClient {
     );
   }
 
+  async getDashboardRegions(): Promise<string[]> {
+    return this.retryRequest(() =>
+      this.client
+        .get<unknown>('/dashboard/regions')
+        .then((res) => {
+          const payload = res.data;
+          return extractDashboardRegions(payload);
+        })
+    );
+  }
+
   // =====================================================
   // Companies
   // =====================================================
@@ -179,6 +191,16 @@ class ApiClient {
         .get<types.CompaniesResponse>(
           '/companies',
           { params }
+        )
+        .then((res) => res.data)
+    );
+  }
+
+  async getCompaniesByRegion(region: string): Promise<types.CompaniesResponse> {
+    return this.retryRequest(() =>
+      this.client
+        .get<types.CompaniesResponse>(
+          `/companies/region/${encodeURIComponent(region)}`
         )
         .then((res) => res.data)
     );

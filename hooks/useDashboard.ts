@@ -9,3 +9,10 @@ export function useDashboard() {
   }, []);
   return useApi<DashboardData>(apiCall);
 }
+
+export function useDashboardRegions() {
+  const apiCall = useCallback(async () => {
+    return await apiClient.getDashboardRegions();
+  }, []);
+  return useApi<string[]>(apiCall);
+}

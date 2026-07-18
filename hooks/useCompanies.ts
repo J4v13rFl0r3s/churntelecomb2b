@@ -9,3 +9,15 @@ export function useCompanies(params?: any) {
   }, [params]);
   return useApi<CompaniesResponse>(apiCall);
 }
+
+export function useCompaniesByRegion(region?: string) {
+  const apiCall = useCallback(async () => {
+    if (!region) {
+      return { data: [], total: 0 } as CompaniesResponse;
+    }
+
+    return await apiClient.getCompaniesByRegion(region);
+  }, [region]);
+
+  return useApi<CompaniesResponse>(apiCall, Boolean(region));
+}

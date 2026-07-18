@@ -1,6 +1,6 @@
 'use client';
 
-import { useDashboard } from '@/hooks/useDashboard';
+import { useDashboard, useDashboardRegions } from '@/hooks/useDashboard';
 import { useTopRisk } from '@/hooks/useTopRisk';
 import { KPICard } from '@/components/Dashboard/KPICard';
 import { TopRisk } from '@/components/Dashboard/TopRisk';
@@ -13,6 +13,7 @@ import {
   Target,
   Zap,
   Award,
+  CheckCircle,
 } from 'lucide-react';
 import {
   Chart as ChartJS,
@@ -29,6 +30,7 @@ import {
 } from 'chart.js';
 import { Doughnut, Bar, Line } from 'react-chartjs-2';
 import { CHART_COLORS } from '@/lib/constants';
+import { normalizeRegionValue } from '@/lib/utils';
 
 ChartJS.register(
   ArcElement,
@@ -45,6 +47,12 @@ ChartJS.register(
 
 export default function DashboardPage() {
   const { data, loading, error, refetch } = useDashboard();
+  const {
+    data: regionsData,
+    loading: regionsLoading,
+    error: regionsError,
+    refetch: refetchRegions,
+  } = useDashboardRegions();
   const {
     data: topRiskData,
     loading: topRiskLoading,
@@ -63,16 +71,16 @@ export default function DashboardPage() {
     ],
   };
 
+  const dashboardRegions = regionsData ?? [];
   const customersByRegionData = {
-    labels:
-      data?.customersByRegion.map(
-        (item) => item['región'] ?? (item as any).region ?? 'N/A'
-      ) ?? [],
+    labels: dashboardRegions.length > 0 ? dashboardRegions : ['Perú'],
     datasets: [
       {
         label: 'Clientes',
         data:
-          data?.customersByRegion.map((item) => item.cantidad ?? 0) ?? [],
+          dashboardRegions.length > 0
+            ? Array(dashboardRegions.length).fill(0)
+            : [0],
         backgroundColor: '#0066cc',
         borderRadius: 8,
       },
@@ -267,7 +275,17 @@ export default function DashboardPage() {
               Clientes por Región
             </h3>
             <div className="h-72">
-              <Bar data={customersByRegionData} options={defaultChartOptions} />
+              {regionsLoading ? (
+                <div className="flex h-full items-center justify-center text-gray-500">
+                  Cargando regiones...
+                </div>
+              ) : regionsError ? (
+                <div className="flex h-full items-center justify-center text-red-500">
+                  No se pudieron cargar las regiones.
+                </div>
+              ) : (
+                <Bar data={customersByRegionData} options={defaultChartOptions} />
+              )}
             </div>
           </div>
 

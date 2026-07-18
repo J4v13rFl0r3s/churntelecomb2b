@@ -35,10 +35,10 @@ export default function MetricsPage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          Model Performance
+          Métricas
         </h1>
         <p className="text-gray-600 dark:text-gray-400 mt-2">
-          Detailed analysis of the churn prediction model performance.
+          Análisis detallado del desempeño del modelo de predicción.
         </p>
       </div>
 
@@ -53,14 +53,14 @@ export default function MetricsPage() {
         </div>
       ) : data ? (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
             <KPICard
               title="Accuracy"
               value={`${(data.accuracy * 100).toFixed(1)}%`}
               icon={Target}
               progress={data.accuracy * 100}
               color="blue"
-              description="Overall correctness of predictions"
+              description="Correctitud general del modelo"
             />
             <KPICard
               title="Precision"
@@ -68,7 +68,7 @@ export default function MetricsPage() {
               icon={Zap}
               progress={data.precision * 100}
               color="green"
-              description="Accuracy of positive predictions"
+              description="Precisión de las predicciones positivas"
             />
             <KPICard
               title="Recall"
@@ -76,7 +76,7 @@ export default function MetricsPage() {
               icon={Activity}
               progress={data.recall * 100}
               color="orange"
-              description="Coverage of actual positives"
+              description="Cobertura de los positivos reales"
             />
             <KPICard
               title="F1 Score"
@@ -84,7 +84,15 @@ export default function MetricsPage() {
               icon={Award}
               progress={data.f1Score * 100}
               color="blue"
-              description="Harmonic mean of precision & recall"
+              description="Media armónica de precision y recall"
+            />
+            <KPICard
+              title="ROC AUC"
+              value={`${(data.rocAuc * 100).toFixed(1)}%`}
+              icon={Target}
+              progress={data.rocAuc * 100}
+              color="purple"
+              description="Área bajo la curva ROC"
             />
           </div>
 
@@ -100,12 +108,12 @@ export default function MetricsPage() {
           {/* Model Information */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
-              Model Information
+              Información del modelo
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                  Model Name
+                  Modelo
                 </p>
                 <p className="text-lg font-semibold text-gray-900 dark:text-white">
                   {data.model.nombre}
@@ -113,7 +121,7 @@ export default function MetricsPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                  Version
+                  Versión
                 </p>
                 <p className="text-lg font-semibold text-gray-900 dark:text-white">
                   {data.model.versión}
@@ -121,7 +129,7 @@ export default function MetricsPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                  Algorithm
+                  Algoritmo
                 </p>
                 <p className="text-lg font-semibold text-gray-900 dark:text-white">
                   {data.model.algoritmo}
@@ -129,7 +137,7 @@ export default function MetricsPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                  Training Date
+                  Fecha Entrenamiento
                 </p>
                 <p className="text-lg font-semibold text-gray-900 dark:text-white">
                   {new Date(data.model.fechaEntrenamiento).toLocaleDateString()}
@@ -137,7 +145,7 @@ export default function MetricsPage() {
               </div>
               <div className="md:col-span-2">
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                  Training Records
+                  Cantidad Registros
                 </p>
                 <p className="text-lg font-semibold text-gray-900 dark:text-white">
                   {data.model.cantidadRegistros.toLocaleString()}

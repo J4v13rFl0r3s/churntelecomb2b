@@ -11,7 +11,7 @@ import type { Prediction } from '@/lib/types';
 export default function PredictionsPage() {
   const { data, loading, error, refetch } = usePredictions();
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('empresa');
+  const [sortBy, setSortBy] = useState<keyof Prediction>('empresa');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -46,7 +46,7 @@ export default function PredictionsPage() {
     return filtered;
   }, [data?.data, searchTerm, sortBy, sortOrder]);
 
-  const handleSort = (field: string) => {
+  const handleSort = (field: keyof Prediction) => {
     if (sortBy === field) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     } else {
@@ -64,7 +64,7 @@ export default function PredictionsPage() {
     endIndex
   );
 
-  const SortIcon = ({ field }: { field: string }) => {
+  const SortIcon = ({ field }: { field: keyof Prediction }) => {
     if (sortBy !== field) return <div className="w-4 h-4" />;
     return sortOrder === 'asc' ? (
       <ChevronUp className="w-4 h-4" />
@@ -73,7 +73,7 @@ export default function PredictionsPage() {
     );
   };
 
-  const SortHeader = ({ field, label }: { field: string; label: string }) => (
+  const SortHeader = ({ field, label }: { field: keyof Prediction; label: string }) => (
     <button
       onClick={() => handleSort(field)}
       className="flex items-center space-x-1 hover:text-blue-600 dark:hover:text-blue-400 transition"
@@ -83,10 +83,14 @@ export default function PredictionsPage() {
     </button>
   );
 
-  const getPredictionColor = (pred: string) => {
-    return pred === 'Activo'
-      ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
-      : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300';
+  const getRiskScoreColor = (score: number) => {
+    if (score < 0.3) {
+      return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300';
+    }
+    if (score < 0.8) {
+      return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300';
+    }
+    return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300';
   };
 
   if (error) {
@@ -119,7 +123,7 @@ export default function PredictionsPage() {
             Predicciones
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
-            View all churn predictions and export data.
+            Ver todas las predicciones y exportar datos.
           </p>
         </div>
         {data?.data && <PredictionsExport predictions={data.data} />}
@@ -131,7 +135,7 @@ export default function PredictionsPage() {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
-            placeholder="Search by company name..."
+            placeholder="Buscar por empresa..."
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
@@ -148,7 +152,7 @@ export default function PredictionsPage() {
       ) : filteredAndSortedPredictions.length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
           <p className="text-gray-600 dark:text-gray-400">
-            No predictions found.
+            No se encontraron predicciones.
           </p>
         </div>
       ) : (
@@ -163,18 +167,18 @@ export default function PredictionsPage() {
                       <SortHeader field="empresa" label="Empresa" />
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                      <SortHeader field="predicción" label="Prediction" />
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                       <SortHeader field="riskScore" label="Risk Score" />
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                      <SortHeader field="probabilidad" label="Probabilidad" />
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                      <SortHeader field="predicción" label="Predicción" />
+                      <SortHeader field="probabilidad" label="Probability" />
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                       <SortHeader
                         field="fechaPredicción"
-                        label="Fecha de Predicción"
+                        label="Fecha Predicción"
                       />
                     </th>
                   </tr>
@@ -189,24 +193,24 @@ export default function PredictionsPage() {
                         {prediction.empresa}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                        {prediction.riskScore}%
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                        {(prediction.probabilidad * 100).toFixed(2)}%
+                        {prediction.predicción}
                       </td>
                       <td className="px-6 py-4">
                         <span
-                          className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getPredictionColor(
-                            prediction.predicción
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getRiskScoreColor(
+                            prediction.riskScore
                           )}`}
                         >
-                          {prediction.predicción}
+                          {prediction.riskScore.toFixed(2)}
                         </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                        {prediction.probabilidad.toFixed(2)}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
                         {format(
                           new Date(prediction.fechaPredicción),
-                          'MMM dd, yyyy'
+                          'dd MMM yyyy'
                         )}
                       </td>
                     </tr>
@@ -219,9 +223,9 @@ export default function PredictionsPage() {
           {/* Pagination */}
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {startIndex + 1} to{' '}
-              {Math.min(endIndex, filteredAndSortedPredictions.length)} of{' '}
-              {filteredAndSortedPredictions.length} predictions
+              Mostrando {startIndex + 1} a{' '}
+              {Math.min(endIndex, filteredAndSortedPredictions.length)} de{' '}
+              {filteredAndSortedPredictions.length} predicciones
             </p>
             <div className="flex items-center space-x-2">
               <button

@@ -17,7 +17,11 @@ export function useAuth() {
       setError(null);
       try {
         const response = await apiClient.login(username, password);
-        saveAuthToStorage(response.token, response.user);
+        const token = (response as any).token || (response as any).access_token;
+        if (!token) {
+          throw new Error('No token returned from login');
+        }
+        saveAuthToStorage(token, (response as any).user ?? null);
         setLoading(false);
         return true;
       } catch (err: any) {

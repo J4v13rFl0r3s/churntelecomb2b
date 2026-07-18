@@ -31,21 +31,30 @@ export const useAuthStore = create<AuthStore>((set) => ({
   loadFromStorage: () => {
     const token = localStorage.getItem('auth_token');
     const userStr = localStorage.getItem('auth_user');
-    if (token && userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        set({ token, user });
-      } catch (e) {
-        localStorage.removeItem('auth_user');
+    if (token) {
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          set({ token, user });
+        } catch (e) {
+          localStorage.removeItem('auth_user');
+          set({ token, user: null });
+        }
+      } else {
+        set({ token, user: null });
       }
     }
   },
 }));
 
-export const saveAuthToStorage = (token: string, user: User) => {
+export const saveAuthToStorage = (token: string, user?: User | null) => {
   localStorage.setItem('auth_token', token);
-  localStorage.setItem('auth_user', JSON.stringify(user));
-  useAuthStore.setState({ token, user });
+  if (user) {
+    localStorage.setItem('auth_user', JSON.stringify(user));
+  } else {
+    localStorage.removeItem('auth_user');
+  }
+  useAuthStore.setState({ token, user: user ?? null });
 };
 
 export const clearAuthFromStorage = () => {

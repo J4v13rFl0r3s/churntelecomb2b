@@ -17,7 +17,7 @@ export default function SettingsPage() {
     checkStatus();
   }, []);
 
-  const API_URL = 'https://churnbackend-production.up.railway.app';
+  const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'NEXT_PUBLIC_API_BASE_URL no configurada';
 
   return (
     <div className="space-y-6 animate-fade-in">

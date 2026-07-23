@@ -85,7 +85,7 @@ export function TopRisk({ data, loading, error, refetch }: TopRiskProps) {
               {topCompanies.map((company) => (
                 <tr key={company.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
                   <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-white">
-                    {company.empresa ?? company.nombre ?? 'N/A'}
+                    {company.nombre ?? company.empresa ?? 'N/A'}
                   </td>
                   <td className="px-4 py-4">
                     <span

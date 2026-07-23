@@ -298,12 +298,25 @@ class ApiClient {
       // Handle case where response is wrapped in { data: {...} }
       const topRiskData = data?.data ?? data;
       
+      // Ensure it's an array and transform field names
+      const companiesArray = Array.isArray(topRiskData?.data) 
+        ? topRiskData.data 
+        : Array.isArray(topRiskData)
+          ? topRiskData
+          : [];
+      
+      // Transform backend field names to frontend format
+      const transformedTopRisk = companiesArray.map((company: any) => ({
+        id: company.company_id,
+        nombre: company.razon_social,
+        sector: company.sector,
+        región: company.region,
+        predicción: company.prediction === 1 ? 'Churn' : 'Activo',
+        riskScore: Math.round((company.risk_score ?? 0) * 100),
+      }));
+      
       return {
-        data: Array.isArray(topRiskData?.data) 
-          ? topRiskData.data 
-          : Array.isArray(topRiskData)
-            ? topRiskData
-            : [],
+        data: transformedTopRisk,
       };
     });
   }

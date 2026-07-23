@@ -128,7 +128,7 @@ export function ConfusionMatrixComponent({
               Accuracy
             </p>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {(accuracy * 100).toFixed(1)}%
+              {((accuracy ?? 0) * 100).toFixed(1)}%
             </p>
           </div>
           <div className="text-center">
@@ -136,7 +136,7 @@ export function ConfusionMatrixComponent({
               Precision
             </p>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {(precision * 100).toFixed(1)}%
+              {((precision ?? 0) * 100).toFixed(1)}%
             </p>
           </div>
           <div className="text-center">
@@ -144,7 +144,7 @@ export function ConfusionMatrixComponent({
               Recall
             </p>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {(recall * 100).toFixed(1)}%
+              {((recall ?? 0) * 100).toFixed(1)}%
             </p>
           </div>
           <div className="text-center">
@@ -152,7 +152,7 @@ export function ConfusionMatrixComponent({
               F1 Score
             </p>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {(f1Score * 100).toFixed(1)}%
+              {((f1Score ?? 0) * 100).toFixed(1)}%
             </p>
           </div>
         </div>

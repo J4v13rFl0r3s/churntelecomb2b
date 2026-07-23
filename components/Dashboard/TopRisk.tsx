@@ -8,11 +8,12 @@ interface TopRiskProps {
   refetch: () => void;
 }
 
-const getRiskScoreColor = (score: number) => {
-  if (score < 0.3) {
+const getRiskScoreColor = (score: number | undefined) => {
+  const safeScore = score ?? 0;
+  if (safeScore < 0.3) {
     return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300';
   }
-  if (score < 0.8) {
+  if (safeScore < 0.8) {
     return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300';
   }
   return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300';
@@ -92,7 +93,7 @@ export function TopRisk({ data, loading, error, refetch }: TopRiskProps) {
                         company.riskScore
                       )}`}
                     >
-                      {company.riskScore.toFixed(2)}
+                      {(company.riskScore ?? 0).toFixed(2)}
                     </span>
                   </td>
                   <td className="px-4 py-4 text-sm text-gray-600 dark:text-gray-400">

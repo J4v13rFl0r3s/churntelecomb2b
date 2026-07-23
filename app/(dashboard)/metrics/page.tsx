@@ -56,41 +56,41 @@ export default function MetricsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
             <KPICard
               title="Accuracy"
-              value={`${(data.accuracy * 100).toFixed(1)}%`}
+              value={`${((data.accuracy ?? 0) * 100).toFixed(1)}%`}
               icon={Target}
-              progress={data.accuracy * 100}
+              progress={(data.accuracy ?? 0) * 100}
               color="blue"
               description="Correctitud general del modelo"
             />
             <KPICard
               title="Precision"
-              value={`${(data.precision * 100).toFixed(1)}%`}
+              value={`${((data.precision ?? 0) * 100).toFixed(1)}%`}
               icon={Zap}
-              progress={data.precision * 100}
+              progress={(data.precision ?? 0) * 100}
               color="green"
               description="Precisión de las predicciones positivas"
             />
             <KPICard
               title="Recall"
-              value={`${(data.recall * 100).toFixed(1)}%`}
+              value={`${((data.recall ?? 0) * 100).toFixed(1)}%`}
               icon={Activity}
-              progress={data.recall * 100}
+              progress={(data.recall ?? 0) * 100}
               color="orange"
               description="Cobertura de los positivos reales"
             />
             <KPICard
               title="F1 Score"
-              value={`${(data.f1Score * 100).toFixed(1)}%`}
+              value={`${((data.f1Score ?? 0) * 100).toFixed(1)}%`}
               icon={Award}
-              progress={data.f1Score * 100}
+              progress={(data.f1Score ?? 0) * 100}
               color="blue"
               description="Media armónica de precision y recall"
             />
             <KPICard
               title="ROC AUC"
-              value={`${(data.rocAuc * 100).toFixed(1)}%`}
+              value={`${((data.rocAuc ?? 0) * 100).toFixed(1)}%`}
               icon={Target}
-              progress={data.rocAuc * 100}
+              progress={(data.rocAuc ?? 0) * 100}
               color="purple"
               description="Área bajo la curva ROC"
             />

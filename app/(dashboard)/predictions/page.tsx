@@ -83,11 +83,12 @@ export default function PredictionsPage() {
     </button>
   );
 
-  const getRiskScoreColor = (score: number) => {
-    if (score < 0.3) {
+  const getRiskScoreColor = (score: number | undefined) => {
+    const safeScore = score ?? 0;
+    if (safeScore < 0.3) {
       return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300';
     }
-    if (score < 0.8) {
+    if (safeScore < 0.8) {
       return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300';
     }
     return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300';
@@ -201,11 +202,11 @@ export default function PredictionsPage() {
                             prediction.riskScore
                           )}`}
                         >
-                          {prediction.riskScore.toFixed(2)}
+                          {(prediction.riskScore ?? 0).toFixed(2)}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                        {prediction.probabilidad.toFixed(2)}
+                        {(prediction.probabilidad ?? 0).toFixed(2)}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
                         {format(

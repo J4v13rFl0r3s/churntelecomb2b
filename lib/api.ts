@@ -241,6 +241,20 @@ class ApiClient {
   }
 
   // =====================================================
+  // Model Metrics
+  // =====================================================
+
+  async getModelMetrics(): Promise<types.ModelMetrics> {
+    return this.retryRequest(() =>
+      this.client
+        .get<types.ModelMetrics>(
+          '/metrics/model'
+        )
+        .then((res) => res.data)
+    );
+  }
+
+  // =====================================================
   // Audit Logs
   // =====================================================
 

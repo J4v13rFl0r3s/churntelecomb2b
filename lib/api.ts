@@ -228,9 +228,21 @@ class ApiClient {
       // Handle array response from /companies/top-risk
       const companiesData = Array.isArray(data) ? data : data?.data ?? [];
       
+      // Transform backend field names to frontend format
+      const transformedCompanies = companiesData.map((company: any) => ({
+        id: company.company_id,
+        nombre: company.razon_social,
+        sector: company.sector,
+        región: company.region,
+        segmento: company.segmento,
+        ejecutivoComercial: company.ejecutivo_comercial,
+        predicción: company.prediction === 1 ? 'Churn' : 'Activo',
+        riskScore: Math.round((company.risk_score ?? 0) * 100),
+      }));
+      
       return {
-        data: Array.isArray(companiesData) ? companiesData : [],
-        total: companiesData?.length ?? 0,
+        data: transformedCompanies,
+        total: transformedCompanies.length,
       };
     });
   }
@@ -244,14 +256,27 @@ class ApiClient {
       
       // Handle case where response is wrapped in { data: {...} }
       const companiesData = data?.data ?? data;
+      const companiesArray = Array.isArray(companiesData?.data) 
+        ? companiesData.data 
+        : Array.isArray(companiesData)
+          ? companiesData
+          : [];
+      
+      // Transform backend field names to frontend format
+      const transformedCompanies = companiesArray.map((company: any) => ({
+        id: company.company_id,
+        nombre: company.razon_social,
+        sector: company.sector,
+        región: company.region,
+        segmento: company.segmento,
+        ejecutivoComercial: company.ejecutivo_comercial,
+        predicción: company.prediction === 1 ? 'Churn' : 'Activo',
+        riskScore: Math.round((company.risk_score ?? 0) * 100),
+      }));
       
       return {
-        data: Array.isArray(companiesData?.data) 
-          ? companiesData.data 
-          : Array.isArray(companiesData)
-            ? companiesData
-            : [],
-        total: companiesData?.total ?? 0,
+        data: transformedCompanies,
+        total: transformedCompanies.length,
       };
     });
   }

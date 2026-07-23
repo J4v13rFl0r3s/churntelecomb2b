@@ -7,7 +7,7 @@ import { Navbar } from './Navbar';
 export function MainLayout({ children }: { children: React.ReactNode }) {
   return (
     <ProtectedRoute>
-      <div className="flex h-screen bg-background">
+      <div className="flex h-screen bg-background overflow-hidden">
         {/* Sidebar */}
         <Sidebar />
 
@@ -17,8 +17,8 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           <Navbar />
 
           {/* Page content */}
-          <main className="flex-1 overflow-auto bg-gray-50 dark:bg-gray-900">
-            <div className="p-6">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden bg-gray-50 dark:bg-gray-900">
+            <div className="p-6 min-h-full">
               {children}
             </div>
           </main>

@@ -9,6 +9,19 @@ import type { Company } from '@/lib/types';
 import { normalizeRegionValue } from '@/lib/utils';
 
 export default function CompaniesPage() {
+  // Declare all state first
+  const [searchTerm, setSearchTerm] = useState('');
+  const [region, setRegion] = useState('');
+  const [sector, setSector] = useState('');
+  const [segmento, setSegmento] = useState('');
+  const [ejecutivo, setEjecutivo] = useState('');
+  const [prediction, setPrediction] = useState('');
+  const [sortBy, setSortBy] = useState<keyof Company>('nombre');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // Then use state in hooks
   const {
     data: companiesData,
     loading: loadingAll,
@@ -21,16 +34,6 @@ export default function CompaniesPage() {
     error: errorByRegion,
     refetch: refetchByRegion,
   } = useCompaniesByRegion(region);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [region, setRegion] = useState('');
-  const [sector, setSector] = useState('');
-  const [segmento, setSegmento] = useState('');
-  const [ejecutivo, setEjecutivo] = useState('');
-  const [prediction, setPrediction] = useState('');
-  const [sortBy, setSortBy] = useState<keyof Company>('nombre');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
 
   const loading = region ? loadingByRegion : loadingAll;
   const error = region ? errorByRegion : errorAll;

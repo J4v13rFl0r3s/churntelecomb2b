@@ -161,22 +161,42 @@ class ApiClient {
   // =====================================================
 
   async getDashboard(): Promise<types.DashboardData> {
-    return this.retryRequest(() =>
-      this.client
-        .get<types.DashboardData>('/dashboard')
-        .then((res) => res.data)
-    );
+    return this.retryRequest(async () => {
+      const response = await this.client.get<any>('/dashboard');
+      const data = response.data;
+      
+      // Handle case where response is wrapped in { data: {...} }
+      const dashboardData = data?.data ?? data;
+      
+      // Ensure required structure exists
+      return {
+        kpis: dashboardData?.kpis ?? {
+          totalEmpresas: 0,
+          empresasActivas: 0,
+          empresasConRiesgo: 0,
+          accuracy: 0,
+          precision: 0,
+          recall: 0,
+          f1Score: 0,
+        },
+        riskDistribution: dashboardData?.riskDistribution ?? {
+          labels: [],
+          values: [],
+        },
+        customersByRegion: dashboardData?.customersByRegion ?? [],
+        customersBySector: dashboardData?.customersBySector ?? [],
+        averageRiskScore: dashboardData?.averageRiskScore ?? [],
+      };
+    });
   }
 
   async getDashboardRegions(): Promise<string[]> {
-    return this.retryRequest(() =>
-      this.client
-        .get<unknown>('/dashboard/regions')
-        .then((res) => {
-          const payload = res.data;
-          return extractDashboardRegions(payload);
-        })
-    );
+    return this.retryRequest(async () => {
+      const response = await this.client.get<any>('/dashboard/regions');
+      const payload = response.data;
+      const regions = extractDashboardRegions(payload);
+      return Array.isArray(regions) ? regions : [];
+    });
   }
 
   // =====================================================
@@ -186,24 +206,46 @@ class ApiClient {
   async getCompanies(
     params?: any
   ): Promise<types.CompaniesResponse> {
-    return this.retryRequest(() =>
-      this.client
-        .get<types.CompaniesResponse>(
-          '/companies',
-          { params }
-        )
-        .then((res) => res.data)
-    );
+    return this.retryRequest(async () => {
+      const response = await this.client.get<any>(
+        '/companies',
+        { params }
+      );
+      const data = response.data;
+      
+      // Handle case where response is wrapped in { data: {...} }
+      const companiesData = data?.data ?? data;
+      
+      return {
+        data: Array.isArray(companiesData?.data) 
+          ? companiesData.data 
+          : Array.isArray(companiesData)
+            ? companiesData
+            : [],
+        total: companiesData?.total ?? 0,
+      };
+    });
   }
 
   async getCompaniesByRegion(region: string): Promise<types.CompaniesResponse> {
-    return this.retryRequest(() =>
-      this.client
-        .get<types.CompaniesResponse>(
-          `/companies/region/${encodeURIComponent(region)}`
-        )
-        .then((res) => res.data)
-    );
+    return this.retryRequest(async () => {
+      const response = await this.client.get<any>(
+        `/companies/region/${encodeURIComponent(region)}`
+      );
+      const data = response.data;
+      
+      // Handle case where response is wrapped in { data: {...} }
+      const companiesData = data?.data ?? data;
+      
+      return {
+        data: Array.isArray(companiesData?.data) 
+          ? companiesData.data 
+          : Array.isArray(companiesData)
+            ? companiesData
+            : [],
+        total: companiesData?.total ?? 0,
+      };
+    });
   }
 
   // =====================================================
@@ -213,14 +255,24 @@ class ApiClient {
   async getTopRisk(
     params?: any
   ): Promise<types.TopRiskResponse> {
-    return this.retryRequest(() =>
-      this.client
-        .get<types.TopRiskResponse>(
-          '/companies/top-risk',
-          { params }
-        )
-        .then((res) => res.data)
-    );
+    return this.retryRequest(async () => {
+      const response = await this.client.get<any>(
+        '/companies/top-risk',
+        { params }
+      );
+      const data = response.data;
+      
+      // Handle case where response is wrapped in { data: {...} }
+      const topRiskData = data?.data ?? data;
+      
+      return {
+        data: Array.isArray(topRiskData?.data) 
+          ? topRiskData.data 
+          : Array.isArray(topRiskData)
+            ? topRiskData
+            : [],
+      };
+    });
   }
 
   // =====================================================
@@ -230,14 +282,25 @@ class ApiClient {
   async getPredictions(
     params?: any
   ): Promise<types.PredictionsResponse> {
-    return this.retryRequest(() =>
-      this.client
-        .get<types.PredictionsResponse>(
-          '/predictions',
-          { params }
-        )
-        .then((res) => res.data)
-    );
+    return this.retryRequest(async () => {
+      const response = await this.client.get<any>(
+        '/predictions',
+        { params }
+      );
+      const data = response.data;
+      
+      // Handle case where response is wrapped in { data: {...} }
+      const predictionsData = data?.data ?? data;
+      
+      return {
+        data: Array.isArray(predictionsData?.data) 
+          ? predictionsData.data 
+          : Array.isArray(predictionsData)
+            ? predictionsData
+            : [],
+        total: predictionsData?.total ?? 0,
+      };
+    });
   }
 
   // =====================================================
@@ -245,13 +308,36 @@ class ApiClient {
   // =====================================================
 
   async getModelMetrics(): Promise<types.ModelMetrics> {
-    return this.retryRequest(() =>
-      this.client
-        .get<types.ModelMetrics>(
-          '/metrics/model'
-        )
-        .then((res) => res.data)
-    );
+    return this.retryRequest(async () => {
+      const response = await this.client.get<any>(
+        '/metrics/model'
+      );
+      const data = response.data;
+      
+      // Handle case where response is wrapped in { data: {...} }
+      const metricsData = data?.data ?? data;
+      
+      return {
+        accuracy: metricsData?.accuracy ?? 0,
+        precision: metricsData?.precision ?? 0,
+        recall: metricsData?.recall ?? 0,
+        f1Score: metricsData?.f1Score ?? 0,
+        rocAuc: metricsData?.rocAuc ?? 0,
+        confusionMatrix: metricsData?.confusionMatrix ?? {
+          TP: 0,
+          TN: 0,
+          FP: 0,
+          FN: 0,
+        },
+        model: metricsData?.model ?? {
+          nombre: 'Unknown',
+          versión: '0.0.0',
+          algoritmo: 'Unknown',
+          fechaEntrenamiento: new Date().toISOString(),
+          cantidadRegistros: 0,
+        },
+      };
+    });
   }
 
   // =====================================================
@@ -261,14 +347,25 @@ class ApiClient {
   async getAuditLogs(
     params?: any
   ): Promise<types.AuditLogsResponse> {
-    return this.retryRequest(() =>
-      this.client
-        .get<types.AuditLogsResponse>(
-          '/logs',
-          { params }
-        )
-        .then((res) => res.data)
-    );
+    return this.retryRequest(async () => {
+      const response = await this.client.get<any>(
+        '/logs',
+        { params }
+      );
+      const data = response.data;
+      
+      // Handle case where response is wrapped in { data: {...} }
+      const auditData = data?.data ?? data;
+      
+      return {
+        data: Array.isArray(auditData?.data) 
+          ? auditData.data 
+          : Array.isArray(auditData)
+            ? auditData
+            : [],
+        total: auditData?.total ?? 0,
+      };
+    });
   }
 
   // =====================================================

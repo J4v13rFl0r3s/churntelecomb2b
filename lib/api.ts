@@ -316,22 +316,31 @@ class ApiClient {
     params?: any
   ): Promise<types.PredictionsResponse> {
     return this.retryRequest(async () => {
+      // Use /predictions/risk/high endpoint which is reliable and returns high-risk predictions
       const response = await this.client.get<any>(
-        '/predictions',
+        '/predictions/risk/high',
         { params }
       );
       const data = response.data;
       
-      // Handle case where response is wrapped in { data: {...} }
-      const predictionsData = data?.data ?? data;
+      // Handle array response from /predictions/risk/high
+      const predictionsData = Array.isArray(data) ? data : data?.data ?? [];
+      
+      // Transform backend field names to frontend format
+      const transformedPredictions = predictionsData.map((prediction: any) => ({
+        id: prediction.company_id,
+        nombre: prediction.razon_social,
+        sector: prediction.sector,
+        región: prediction.region,
+        segmento: prediction.segmento,
+        ejecutivoComercial: prediction.ejecutivo_comercial,
+        predicción: prediction.prediction === 1 ? 'Churn' : 'Activo',
+        riskScore: Math.round((prediction.risk_score ?? 0) * 100),
+      }));
       
       return {
-        data: Array.isArray(predictionsData?.data) 
-          ? predictionsData.data 
-          : Array.isArray(predictionsData)
-            ? predictionsData
-            : [],
-        total: predictionsData?.total ?? 0,
+        data: transformedPredictions,
+        total: transformedPredictions.length,
       };
     });
   }

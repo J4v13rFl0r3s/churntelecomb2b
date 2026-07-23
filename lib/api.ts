@@ -168,21 +168,31 @@ class ApiClient {
       // Handle case where response is wrapped in { data: {...} }
       const dashboardData = data?.data ?? data;
       
+      // Transform backend flat structure to frontend nested structure
+      const kpis = {
+        totalEmpresas: dashboardData?.total_companies ?? 0,
+        empresasActivas: dashboardData?.total_companies ?? 0, // Backend doesn't provide active count
+        empresasConRiesgo: dashboardData?.predicted_churn ?? 0,
+        accuracy: dashboardData?.accuracy ?? 0,
+        precision: dashboardData?.precision ?? 0,
+        recall: dashboardData?.recall ?? 0,
+        f1Score: dashboardData?.f1_score ?? 0,
+      };
+      
+      // Build risk distribution from risk category counts
+      const riskDistribution = {
+        labels: ['Low Risk', 'Medium Risk', 'High Risk'],
+        values: [
+          dashboardData?.low_risk ?? 0,
+          dashboardData?.medium_risk ?? 0,
+          dashboardData?.high_risk ?? 0,
+        ],
+      };
+      
       // Ensure required structure exists
       return {
-        kpis: dashboardData?.kpis ?? {
-          totalEmpresas: 0,
-          empresasActivas: 0,
-          empresasConRiesgo: 0,
-          accuracy: 0,
-          precision: 0,
-          recall: 0,
-          f1Score: 0,
-        },
-        riskDistribution: dashboardData?.riskDistribution ?? {
-          labels: [],
-          values: [],
-        },
+        kpis,
+        riskDistribution,
         customersByRegion: dashboardData?.customersByRegion ?? [],
         customersBySector: dashboardData?.customersBySector ?? [],
         averageRiskScore: dashboardData?.averageRiskScore ?? [],

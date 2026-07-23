@@ -399,16 +399,23 @@ class ApiClient {
       );
       const data = response.data;
       
-      // Handle case where response is wrapped in { data: {...} }
-      const auditData = data?.data ?? data;
+      // Backend returns an array directly
+      const auditArray = Array.isArray(data) ? data : data?.data ?? [];
+      
+      // Transform backend field names to frontend field names
+      const transformedLogs = auditArray.map((log: any, index: number) => ({
+        id: log.id ?? `log-${index}`,
+        usuario: log.username ?? 'N/A',
+        acción: log.action ?? 'HTTP Request',
+        endpoint: log.endpoint ?? '',
+        método: (log.method ?? 'GET').toUpperCase() as any,
+        ip: log.ip ?? '',
+        fecha: log.timestamp ?? new Date().toISOString(),
+      }));
       
       return {
-        data: Array.isArray(auditData?.data) 
-          ? auditData.data 
-          : Array.isArray(auditData)
-            ? auditData
-            : [],
-        total: auditData?.total ?? 0,
+        data: transformedLogs,
+        total: transformedLogs.length,
       };
     });
   }

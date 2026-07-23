@@ -329,13 +329,11 @@ class ApiClient {
       // Transform backend field names to frontend format
       const transformedPredictions = predictionsData.map((prediction: any) => ({
         id: prediction.company_id,
-        nombre: prediction.razon_social,
-        sector: prediction.sector,
-        región: prediction.region,
-        segmento: prediction.segmento,
-        ejecutivoComercial: prediction.ejecutivo_comercial,
-        predicción: prediction.prediction === 1 ? 'Churn' : 'Activo',
+        empresa: prediction.razon_social,
         riskScore: Math.round((prediction.risk_score ?? 0) * 100),
+        probabilidad: prediction.risk_score ?? 0,
+        predicción: prediction.prediction === 1 ? 'Churn' : 'Activo',
+        fechaPredicción: new Date().toISOString().split('T')[0],
       }));
       
       return {

@@ -55,7 +55,7 @@ export function Navbar() {
       {/* Left section */}
       <div className="flex items-center space-x-4">
         <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-          Telecom Churn Prediction
+          B2B Telecom Churn Prediction
         </h1>
       </div>
 

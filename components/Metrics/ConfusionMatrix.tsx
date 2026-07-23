@@ -161,10 +161,10 @@ export function ConfusionMatrixComponent({
       {/* Legend */}
       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
         <p className="text-sm text-blue-900 dark:text-blue-300">
-          <strong>Note:</strong> The confusion matrix shows the performance of
-          the model. True Positives (TP) and True Negatives (TN) are correct
-          predictions. False Positives (FP) and False Negatives (FN) are
-          incorrect predictions.
+          <strong>Nota:</strong> La matriz de confusión muestra el desempeño del
+          modelo. Verdaderos Positivos (TP) y Verdaderos Negativos (TN) son
+          predicciones correctas. Falsos Positivos (FP) y Falsos Negativos (FN) son
+          predicciones incorrectas.
         </p>
       </div>
     </div>

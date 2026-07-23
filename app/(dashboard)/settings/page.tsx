@@ -114,7 +114,7 @@ export default function SettingsPage() {
             </label>
             <input
               type="text"
-              value="Telecom Churn Prediction Dashboard"
+              value="B2B Telecom Churn Prediction Dashboard"
               disabled
               className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-lg"
             />

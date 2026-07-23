@@ -3,7 +3,7 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Telecom Churn Prediction',
+  title: 'B2B Telecom Churn Prediction',
   description: 'Enterprise churn prediction dashboard for telecommunications',
   generator: 'v0.app',
   icons: {

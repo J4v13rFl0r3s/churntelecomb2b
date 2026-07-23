@@ -217,22 +217,20 @@ class ApiClient {
     params?: any
   ): Promise<types.CompaniesResponse> {
     return this.retryRequest(async () => {
+      // Use /companies/top-risk endpoint which is more reliable
+      // If we need filtered results, we can add support for /companies/search later
       const response = await this.client.get<any>(
-        '/companies',
+        '/companies/top-risk',
         { params }
       );
       const data = response.data;
       
-      // Handle case where response is wrapped in { data: {...} }
-      const companiesData = data?.data ?? data;
+      // Handle array response from /companies/top-risk
+      const companiesData = Array.isArray(data) ? data : data?.data ?? [];
       
       return {
-        data: Array.isArray(companiesData?.data) 
-          ? companiesData.data 
-          : Array.isArray(companiesData)
-            ? companiesData
-            : [],
-        total: companiesData?.total ?? 0,
+        data: Array.isArray(companiesData) ? companiesData : [],
+        total: companiesData?.length ?? 0,
       };
     });
   }

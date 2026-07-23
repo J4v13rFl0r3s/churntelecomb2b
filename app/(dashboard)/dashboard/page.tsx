@@ -188,52 +188,52 @@ export default function DashboardPage() {
                 <SkeletonCard key={i} />
               ))}
           </>
-        ) : data ? (
+        ) : data && data.kpis ? (
           <>
             <KPICard
               title="Total Empresas"
-              value={data.kpis.totalEmpresas}
+              value={data.kpis.totalEmpresas ?? 0}
               icon={Building2}
               color="blue"
             />
             <KPICard
               title="Empresas Activas"
-              value={data.kpis.empresasActivas}
+              value={data.kpis.empresasActivas ?? 0}
               icon={CheckCircle}
               color="green"
             />
             <KPICard
               title="Empresas con Riesgo"
-              value={data.kpis.empresasConRiesgo}
+              value={data.kpis.empresasConRiesgo ?? 0}
               icon={TrendingDown}
               color="red"
             />
             <KPICard
               title="Accuracy"
-              value={`${(data.kpis.accuracy * 100).toFixed(1)}%`}
+              value={`${((data.kpis.accuracy ?? 0) * 100).toFixed(1)}%`}
               icon={Target}
-              progress={data.kpis.accuracy * 100}
+              progress={(data.kpis.accuracy ?? 0) * 100}
               color="blue"
             />
             <KPICard
               title="Precision"
-              value={`${(data.kpis.precision * 100).toFixed(1)}%`}
+              value={`${((data.kpis.precision ?? 0) * 100).toFixed(1)}%`}
               icon={Zap}
-              progress={data.kpis.precision * 100}
+              progress={(data.kpis.precision ?? 0) * 100}
               color="green"
             />
             <KPICard
               title="Recall"
-              value={`${(data.kpis.recall * 100).toFixed(1)}%`}
+              value={`${((data.kpis.recall ?? 0) * 100).toFixed(1)}%`}
               icon={Activity}
-              progress={data.kpis.recall * 100}
+              progress={(data.kpis.recall ?? 0) * 100}
               color="orange"
             />
             <KPICard
               title="F1 Score"
-              value={`${(data.kpis.f1Score * 100).toFixed(1)}%`}
+              value={`${((data.kpis.f1Score ?? 0) * 100).toFixed(1)}%`}
               icon={Award}
-              progress={data.kpis.f1Score * 100}
+              progress={(data.kpis.f1Score ?? 0) * 100}
               color="blue"
             />
           </>

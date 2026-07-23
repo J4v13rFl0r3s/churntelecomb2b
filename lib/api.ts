@@ -360,12 +360,14 @@ class ApiClient {
       const confusion = confusionResponse.data;
       const info = infoResponse.data;
 
+      // Values from backend are already decimals (0.0-1.0), no need to multiply by 100
+      // The percentage display happens in the UI component
       return {
-        accuracy: (metrics?.accuracy ?? 0) * 100,
-        precision: (metrics?.precision ?? 0) * 100,
-        recall: (metrics?.recall ?? 0) * 100,
-        f1Score: (metrics?.f1_score ?? 0) * 100,
-        rocAuc: (metrics?.roc_auc ?? 0) * 100,
+        accuracy: metrics?.accuracy ?? 0,
+        precision: metrics?.precision ?? 0,
+        recall: metrics?.recall ?? 0,
+        f1Score: metrics?.f1_score ?? 0,
+        rocAuc: metrics?.roc_auc ?? 0,
         confusionMatrix: {
           TP: confusion?.true_positive ?? metrics?.true_positive ?? 0,
           TN: confusion?.true_negative ?? metrics?.true_negative ?? 0,

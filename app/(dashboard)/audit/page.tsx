@@ -45,13 +45,13 @@ export default function AuditPage() {
         </h1>
         <div className="p-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
           <p className="text-red-800 dark:text-red-300 font-medium mb-4">
-            Failed to load audit logs: {error}
+            Error al cargar registros de auditoría: {error}
           </p>
           <button
             onClick={() => refetch()}
             className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition"
           >
-            Retry
+            Reintentar
           </button>
         </div>
       </div>
@@ -66,7 +66,7 @@ export default function AuditPage() {
           Auditoría
         </h1>
         <p className="text-gray-600 dark:text-gray-400 mt-2">
-          Track all system activities and user actions.
+          Rastrear todas las actividades del sistema y acciones de usuarios.
         </p>
       </div>
 
@@ -75,7 +75,7 @@ export default function AuditPage() {
         <SkeletonTable />
       ) : displayedLogs.length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
-          <p className="text-gray-600 dark:text-gray-400">No audit logs found.</p>
+          <p className="text-gray-600 dark:text-gray-400">No se encontraron registros de auditoría.</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -133,7 +133,17 @@ export default function AuditPage() {
                         {log.ip}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                        {format(new Date(log.fecha), 'MMM dd, yyyy HH:mm:ss')}
+                        {(() => {
+                          try {
+                            const date = new Date(log.fecha);
+                            if (isNaN(date.getTime())) {
+                              return 'Fecha inválida';
+                            }
+                            return format(date, 'MMM dd, yyyy HH:mm:ss');
+                          } catch (e) {
+                            return 'Fecha inválida';
+                          }
+                        })()}
                       </td>
                     </tr>
                   ))}
@@ -145,10 +155,10 @@ export default function AuditPage() {
           {/* Pagination */}
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Showing{' '}
-              {(currentPage - 1) * itemsPerPage + 1} to{' '}
-              {Math.min(currentPage * itemsPerPage, data?.total || 0)} of{' '}
-              {data?.total || 0} logs
+              Mostrando{' '}
+              {(currentPage - 1) * itemsPerPage + 1} a{' '}
+              {Math.min(currentPage * itemsPerPage, data?.total || 0)} de{' '}
+              {data?.total || 0} registros
             </p>
             <div className="flex items-center space-x-2">
               <button
@@ -156,7 +166,7 @@ export default function AuditPage() {
                 disabled={currentPage === 1}
                 className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
-                Previous
+                Anterior
               </button>
               <div className="flex items-center space-x-1">
                 {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map(
@@ -183,7 +193,7 @@ export default function AuditPage() {
                 disabled={currentPage === totalPages}
                 className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
-                Next
+                Siguiente
               </button>
             </div>
           </div>

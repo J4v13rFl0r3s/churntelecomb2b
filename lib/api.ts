@@ -349,32 +349,35 @@ class ApiClient {
 
   async getModelMetrics(): Promise<types.ModelMetrics> {
     return this.retryRequest(async () => {
-      const response = await this.client.get<any>(
-        '/metrics/model'
-      );
-      const data = response.data;
-      
-      // Handle case where response is wrapped in { data: {...} }
-      const metricsData = data?.data ?? data;
-      
+      // Fetch data from all three endpoints in parallel
+      const [metricsResponse, confusionResponse, infoResponse] = await Promise.all([
+        this.client.get<any>('/metrics/model').catch(() => ({ data: {} })),
+        this.client.get<any>('/metrics/confusion-matrix').catch(() => ({ data: {} })),
+        this.client.get<any>('/metrics/model-info').catch(() => ({ data: {} })),
+      ]);
+
+      const metrics = metricsResponse.data;
+      const confusion = confusionResponse.data;
+      const info = infoResponse.data;
+
       return {
-        accuracy: metricsData?.accuracy ?? 0,
-        precision: metricsData?.precision ?? 0,
-        recall: metricsData?.recall ?? 0,
-        f1Score: metricsData?.f1Score ?? 0,
-        rocAuc: metricsData?.rocAuc ?? 0,
-        confusionMatrix: metricsData?.confusionMatrix ?? {
-          TP: 0,
-          TN: 0,
-          FP: 0,
-          FN: 0,
+        accuracy: (metrics?.accuracy ?? 0) * 100,
+        precision: (metrics?.precision ?? 0) * 100,
+        recall: (metrics?.recall ?? 0) * 100,
+        f1Score: (metrics?.f1_score ?? 0) * 100,
+        rocAuc: (metrics?.roc_auc ?? 0) * 100,
+        confusionMatrix: {
+          TP: confusion?.true_positive ?? metrics?.true_positive ?? 0,
+          TN: confusion?.true_negative ?? metrics?.true_negative ?? 0,
+          FP: confusion?.false_positive ?? metrics?.false_positive ?? 0,
+          FN: confusion?.false_negative ?? metrics?.false_negative ?? 0,
         },
-        model: metricsData?.model ?? {
-          nombre: 'Unknown',
-          versión: '0.0.0',
-          algoritmo: 'Unknown',
-          fechaEntrenamiento: new Date().toISOString(),
-          cantidadRegistros: 0,
+        model: {
+          nombre: info?.nombre ?? 'Unknown',
+          versión: info?.versión ?? info?.version ?? '0.0.0',
+          algoritmo: info?.algoritmo ?? info?.algorithm ?? 'Unknown',
+          fechaEntrenamiento: info?.fecha_entrenamiento ?? info?.fechaEntrenamiento ?? new Date().toISOString(),
+          cantidadRegistros: info?.cantidad_registros ?? info?.cantidadRegistros ?? 0,
         },
       };
     });

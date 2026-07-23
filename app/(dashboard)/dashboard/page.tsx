@@ -61,10 +61,10 @@ export default function DashboardPage() {
   } = useTopRisk();
 
   const riskDistributionData = {
-    labels: data?.riskDistribution.labels ?? [],
+    labels: data?.riskDistribution?.labels?.length ? data.riskDistribution.labels : [],
     datasets: [
       {
-        data: data?.riskDistribution.values ?? [],
+        data: data?.riskDistribution?.values?.length ? data.riskDistribution.values : [],
         backgroundColor: CHART_COLORS,
         borderWidth: 1,
       },
@@ -88,11 +88,11 @@ export default function DashboardPage() {
   };
 
   const customersBySectorData = {
-    labels: data?.customersBySector.map((item) => item.sector ?? 'N/A') ?? [],
+    labels: data?.customersBySector?.length ? data.customersBySector.map((item) => item.sector ?? 'N/A') : [],
     datasets: [
       {
         label: 'Clientes',
-        data: data?.customersBySector.map((item) => item.cantidad ?? 0) ?? [],
+        data: data?.customersBySector?.length ? data.customersBySector.map((item) => item.cantidad ?? 0) : [],
         backgroundColor: '#1e7145',
         borderRadius: 8,
       },
@@ -100,11 +100,11 @@ export default function DashboardPage() {
   };
 
   const averageRiskScoreData = {
-    labels: data?.averageRiskScore.map((item) => item.fecha) ?? [],
+    labels: data?.averageRiskScore?.length ? data.averageRiskScore.map((item) => item.fecha) : [],
     datasets: [
       {
         label: 'Risk Score',
-        data: data?.averageRiskScore.map((item) => item.riskScore) ?? [],
+        data: data?.averageRiskScore?.length ? data.averageRiskScore.map((item) => item.riskScore) : [],
         fill: true,
         backgroundColor: 'rgba(245, 158, 11, 0.2)',
         borderColor: '#f59e0b',
